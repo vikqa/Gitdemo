@@ -1,0 +1,17 @@
+package abc;
+
+public class First {
+
+
+    public static void main(String[] args) {
+        
+		WebDriver driver = new FirefoxDriver();
+		/
+        String baseUrl = "http://demo.guru99.com/test/newtours/";
+        String expectedTitle = "Welcome: Mercury Tours";
+      
+       
+       
+    }
+
+}

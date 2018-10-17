@@ -1,0 +1,565 @@
+package com.onmobile.test;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+public class BaseTest {
+	// --------------------Global Variables----//
+	public static WebDriver driver;
+	// public ExtentReports rep=ExtentManager.getInstance();
+	// public static ExtentTest Test;
+	// public static Xlsx_Reader xls = new
+	// Xlsx_Reader("/Users/apple/Downloads/TestCaseData.xlsx");
+	public static int testCaseRowNum;
+	public static int colStartRowNum;
+	public static String BrowserName;
+	public static String testCaseName;
+	public static String HMIN;
+	public static String HMAX;
+	public static String driverPath = "E:\\Rajat\\pageobjectmodel-seleniumFramework-master\\drivers\\geckodriver.exe";
+	// public static String driverPath =
+	// "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs";
+
+	// ----------------Generic Functions-----//
+
+	public static void openBrowser() {
+		System.setProperty("webdriver.chrome.driver", "D:\\chromedriver.exe");
+		driver = new ChromeDriver();
+		// if(BrowserName.equals("Chrome")){
+		// System.setProperty("webdriver.chrome.driver", "C:\\Program Files
+		// (x86)\\Google\\Chrome\\Application\\chrome.exe");
+		// driver = new ChromeDriver();
+		/*
+		 * } else if (BrowserName.equals("Safari")){ driver= new SafariDriver();
+		 * } else if (BrowserName.equals("Firefox")){
+		 */
+
+//		System.setProperty("webdriver.gecko.driver", driverPath);
+//		FirefoxProfile firefoxProfile = new FirefoxProfile();
+//		firefoxProfile.setPreference("browser.private.browsing.autostart",
+//		 false);
+//		firefoxProfile.setPreference("dom.disable_open_during_load", false);
+//		 driver = new FirefoxDriver();
+		driver.manage().deleteAllCookies();
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+		driver.manage().window().maximize();
+		// driver.navigate().
+
+	}
+
+	public static void closeBrowser() {
+		System.out.println("BROWSER CLOSING");
+		driver.close();
+	}
+
+	public static void navigate(String abc) throws IOException {
+
+		String URLValue = getPropValue(abc);
+		driver.get(URLValue);
+
+	}
+
+	public static void impwait(int i) throws InterruptedException {
+		// Thread.sleep(i * 1000)
+		driver.manage().timeouts().implicitlyWait(i, TimeUnit.SECONDS);
+	}
+
+	public static void wait(int i) throws InterruptedException {
+		Thread.sleep(i * 1000);
+	}
+
+	public static void clearTextBox(String abc) throws IOException {
+
+		String URLValue = getPathValue(abc);
+
+		driver.findElement(By.xpath(URLValue)).clear();
+
+	}
+
+	public static void MoveToElement(String LocatorName) throws IOException {
+		Actions act = new Actions(driver);
+		act.moveToElement(getElement(LocatorName)).build().perform();
+
+	}
+
+	public static void type(String LocatorName, String Value) throws IOException {
+		getElement(LocatorName).sendKeys(Value);
+	}
+
+	public static void enter(String LocatorName) {
+		getElement(LocatorName).sendKeys(Keys.ENTER);
+		System.out.println("hello");
+	}
+
+	public static void click(String LocatorName) throws IOException {
+		getElement(LocatorName).click();
+	}
+	
+	public static void advanceClick(String LocatorName) throws IOException, InterruptedException {
+		WebElement element = getElement(LocatorName);
+		if(element.isDisplayed()){
+			element.click();
+		}else{
+			wait(5);
+			element.click();
+		}
+	}
+
+	public static void closeAllAdds() {
+		Set<String> WindowId = driver.getWindowHandles();
+		Iterator<String> It = WindowId.iterator();
+		String Wid1 = It.next();
+
+		while (It.hasNext()) {
+			driver.switchTo().window(It.next());
+			driver.close();
+		}
+		driver.switchTo().window(Wid1);
+	}
+
+	public static void switchToWindow() {
+		Set<String> WindowId = driver.getWindowHandles();
+		Iterator<String> It = WindowId.iterator();
+
+		String Wd1 = It.next();
+		String Wd2 = It.next();
+		driver.switchTo().window(Wd2);
+	}
+
+	public static String getPropValue(String PName) throws IOException {
+		Properties prop = new Properties();
+		String dir = System.getProperty("user.dir");
+		FileInputStream pi = new FileInputStream(dir + "\\src\\com\\onmobile\\test\\config.properties");
+		prop.load(pi);
+		String PValue = prop.getProperty(PName);
+		System.out.println(PValue);
+
+		return PValue;
+
+	}
+	public static void ExpWait(String LocatorName, int a) throws IOException
+	{
+		WebDriverWait wait = new WebDriverWait(driver, a);
+		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(getPathValue(LocatorName))));
+		
+		
+	}
+	public static String getPathValue(String PName) throws IOException {
+		Properties prop = new Properties();
+		String dir = System.getProperty("user.dir");
+		FileInputStream pi = new FileInputStream(dir + "\\src\\com\\onmobile\\test\\ObjPath.properties");
+		System.out.println(pi.available());
+		prop.load(pi);
+		String PValue = prop.getProperty(PName);
+
+		return PValue;
+
+	}
+
+	public static void fileReader() throws IOException {
+		FileReader r = new FileReader("C:\\Users\\Mandeep\\Desktop\\ipaddress.txt");
+		BufferedReader bfr = new BufferedReader(r);
+		String x;
+
+		while ((x = bfr.readLine()) != null) {
+			System.out.println(x);
+		}
+	}
+
+	public static void fileWriter(String HMIN, String HMAX) throws IOException {
+		File f = new File("C:\\Users\\Vikash\\Desktop\\temp.txt");
+		// f.createNewFile();// Creating test file
+		FileWriter w = new FileWriter("C:\\Users\\Mandeep\\Desktop\\temp.txt");// writing
+																				// data
+																				// in
+																				// text
+																				// file
+		BufferedWriter out = new BufferedWriter(w);// buffering data in text
+													// file
+
+		out.write(HMIN);
+		out.newLine();
+		out.write(HMAX);
+		out.flush();
+	}
+
+	public static int CountElements(String LocatorName) throws IOException {
+		String LocatorValue = getPathValue(LocatorName);
+		List<WebElement> ExpOpt = driver.findElements(By.xpath(LocatorValue));
+
+		System.out.println(ExpOpt.size());
+		return ExpOpt.size();
+	}
+
+	public static void getTextElements(String LocatorName) throws IOException, InterruptedException {
+		String LocatorValue = getPathValue(LocatorName);
+		List<WebElement> allLinks = driver.findElements(By.xpath(LocatorValue));
+		Iterator<WebElement> itr = allLinks.iterator();
+		while (itr.hasNext()) {
+			WebElement row = itr.next();
+			String z = row.getText();
+
+			row.click();
+			wait(4);
+			ArrayList<String> tabs2 = new ArrayList<String>(driver.getWindowHandles());
+			driver.switchTo().window(tabs2.get(0));
+			driver.switchTo().window(tabs2.get(1));
+
+			String z1 = getText("ClickedJob_Xpath");
+			driver.close();
+			driver.switchTo().window(tabs2.get(0));
+
+			if (z1.contains(z)) {
+				System.out.println(z);
+				System.out.println("Test Passed");
+			} else {
+				System.out.println(z);
+				System.out.println("Test Failed");
+			}
+
+		}
+
+	}
+
+	public static void getTextElements1() throws InterruptedException, IOException {
+		List<WebElement> e = driver
+				.findElements(By.xpath(".//*[@id='scroll59805eea5c6f7']/div[2]/div/article/div/div/h2/a"));
+		Iterator<WebElement> it = e.iterator();
+		int TotalJobs = e.size();
+		System.out.println(TotalJobs);
+
+		while (it.hasNext()) {
+			WebElement row = it.next();
+			String z = row.getText();
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			js.executeScript("arguments[0].scrollIntoView(false);", row);
+
+			row.click();
+			Thread.sleep(3000);
+			ArrayList<String> handle = new ArrayList<String>(driver.getWindowHandles());
+			driver.switchTo().window(handle.get(1));
+			Thread.sleep(7000);
+			String z1 = getText("ClickedJob_Xpath");
+			driver.close();
+			driver.switchTo().window(handle.get(0));
+
+			if (z1.contains(z)) {
+				System.out.println(z);
+				System.out.println("Test Passed");
+			} else {
+				System.out.println(z);
+				System.out.println(z1);
+				System.out.println("NOt Matched- Test Failed");
+			}
+
+		}
+		System.out.println("TotalJobs: " + TotalJobs);
+
+	}
+
+	public static boolean isElementPresent(String LocatorName) throws IOException {
+		String LocatorValue = getPathValue(LocatorName);
+
+		List<WebElement> ExpOpt = driver.findElements(By.xpath(LocatorValue));
+		System.out.println(ExpOpt.size());
+		if (ExpOpt.size() > 0) {
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean getWindowTitle(String PName) throws IOException {
+		String PValue = getPropValue(PName);
+		// System.out.println(PValue);
+		String x = driver.getTitle();
+		// System.out.println(x);
+		if (x.equals(PValue)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static WebElement getElement(String LocatorKey) {
+		WebElement e = null;
+		try {
+			if (LocatorKey.endsWith("_id"))
+				e = driver.findElement(By.id(getPathValue(LocatorKey)));
+			else if (LocatorKey.endsWith("_name"))
+				e = driver.findElement(By.name(getPathValue(LocatorKey)));
+			else if (LocatorKey.endsWith("_Xpath"))
+				e = driver.findElement(By.xpath(getPathValue(LocatorKey)));
+			else if (LocatorKey.endsWith("_css"))
+				e = driver.findElement(By.cssSelector(getPathValue(LocatorKey)));
+			// else{
+			// reportFail("Locator not Correct -"+LocatorKey);
+			// }
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return e;
+	}
+
+	public static void clickOption(String LocatorName, String CompanyName) throws IOException {
+		String cPath = getPathValue(LocatorName);
+		// String cPath=".//*[contains(text(), '%s')]";
+		String z = String.format(cPath, CompanyName);
+		driver.findElement(By.xpath(z)).click();
+	}
+
+	public static String getText(String LocatorName) throws IOException {
+		String cPath = getPathValue(LocatorName);
+		String z = driver.findElement(By.xpath(cPath)).getText();
+		return z;
+	}
+public static String OMRetreiveOtpDB(String MobNmber) {
+		String otp = "";
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = (Connection) DriverManager.getConnection(
+					"jdbc:mysql://onmobile-dev.cncznbsfk22n.ap-south-1.rds.amazonaws.com:3306/onmobileproduction",
+					"onmobile", "12cdvd123f6");
+			// here onmobileproduction is database name, onmobile is username
+			// and 12cdvd123f6 is password
+			Statement stmt = (Statement) con.createStatement();
+			ResultSet rs = stmt.executeQuery(
+					"select verificationCode from Verification_code where phoneNumber= " + MobNmber + ";");
+			while (rs.next())
+				otp = rs.getString(1);
+			con.close();
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		return otp;
+	}
+
+	public static void Login(String MobNumber) throws IOException, InterruptedException {
+
+		CallOtpPop();
+		wait(3);
+		System.out.println("Test Started");
+		type("OnMobEnterMobile_Xpath", MobNumber); // Enter Mobile Number
+		wait(2);
+		advanceClick("GenerateOTP_Xpath"); // Generating OTP
+		System.out.println("OTP Sent on Mobile");
+		wait(5);
+		String otp = OMRetreiveOtpDB(MobNumber); // getting OTP from DB
+		System.out.println(otp);
+		wait(2);
+		type("EnterOTP_Xpath", otp); // Entering OTP
+		wait(1);
+		advanceClick("SubmitOTP_Xpath"); // Login with OTP
+		System.out.println("Login Success----");
+		wait(2);
+		advanceClick("langChanger_css");
+		//navigate("http://bengalivideos.onmo.com/change-language");
+		System.out.println("Language Change Success----");
+		wait(5);
+		System.out.println("Going to Menu Button CLick");
+		advanceClick("Menu_Xpath");
+		wait(2);
+		Assert.assertEquals(isElementPresent("Hover_MyAccount_Xpath"), true, "MyAccount Element NOT Visible");
+		wait(3);
+		MoveToElement("MenuClose_Xpath");
+		advanceClick("MenuClose_Xpath");
+		wait(3);
+	}
+
+	public static void DMLogin(String MobNumber) throws IOException, InterruptedException {
+
+		try {
+			System.out.println("Test Started");
+			type("OnMobEnterMobile_Xpath", MobNumber); // Enter Mobile Number
+			click("GenerateOTP_Xpath"); // Generating OTP
+			System.out.println("OTP Sent on Mobile");
+			wait(5);
+
+			String otp = OMRetreiveOtpDB(MobNumber); // getting OTP from DB
+			wait(2);
+			System.out.println(otp);
+			type("EnterOTP_Xpath", otp); // Entering OTP
+			wait(3);
+			click("SubmitOTP_Xpath"); // Login with OTP
+			wait(5);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void Subscribe() throws IOException, InterruptedException {
+
+		MoveToElement("Hover_MyAccount_Xpath");
+		click("Hover_MyAccount_Xpath");
+		wait(5);
+		MoveToElement("Subscription_Xpath");
+		wait(3);
+		click("Subscription_Xpath");
+		wait(5);
+		click("Subscribe_Xpath");
+		wait(2);
+		String optSuccess = getText("MobileOTP_Xpath");
+		System.out.println("OTP Success Message: " + optSuccess);
+
+	}
+
+	public static void CelebCornerVideoPlay() throws IOException {
+
+		// click("CelebCorner_Xpath");
+		MoveToElement("VideoHover_Xpath");
+		click("VideoHover_Xpath");
+		click("VideoPlay_Xpath");
+
+	}
+
+	public static void HeaderSearchVideoNPlay(String SearchKeyword) throws IOException, InterruptedException {
+
+		wait(5);
+		MoveToElement("Search_Xpath");
+		wait(2);
+		type("Search_Xpath", SearchKeyword);
+		enter("Search_Xpath");
+		impwait(10);
+		MoveToElement("SearchVideoResult_Xpath");
+		wait(5);
+		Assert.assertEquals(isElementPresent("SearchVideoPlayBtn_Xpath"), true, "Play button NOT Visible");
+		Assert.assertEquals(isElementPresent("VideoFavoriteBtn_Xpath"), true, "Play button NOT Visible");
+		wait(3);
+		// click("SearchVideoPlayBtn_Xpath");
+		//click("VideoFavoriteBtn_Xpath");
+
+	}
+
+	public static void HeaderAPISearchNPlay(String SearchKeyword) throws IOException, InterruptedException {
+
+		wait(5);
+		MoveToElement("Search_Xpath");
+		wait(2);
+		type("Search_Xpath", SearchKeyword);
+		wait(5);
+		MoveToElement("Search1_Xpath");
+		Assert.assertEquals(isElementPresent("Search1_Xpath"), true, "Search Results NOT Visible");
+		wait(2);
+		advanceClick("Search1_Xpath");
+		impwait(5);
+		MoveToElement("SearchVideoResult_Xpath");
+		wait(5);
+		// click("SearchVideoPlayBtn_Xpath");
+		wait(5);
+	}
+
+	public static void VideoFavoriteLogic(String url) throws IOException, InterruptedException {
+		wait(5);
+		System.out.println(url);
+		navigate(url);
+		if (isElementPresent("NoRecordFavorite_Xpath")) 
+		{
+			String CatName = getText("Cat1_Xpath");
+			System.out.println("Header Cat Name= " + CatName);
+			advanceClick("Cat1_Xpath");
+			MoveToElement("VideoHover_Xpath");
+			String videoName = getText("VideoHover2_Xpath");
+			System.out.println(videoName);
+			advanceClick("VideoFavorite_Xpath");
+			wait(5);
+			advanceClick("Menu_Xpath");
+			wait(3);
+			advanceClick("Category_Favorite_Xpath");
+			navigate(url);
+			String FavCatName = getText("VideoFavoriteHeader_Xpath");
+			System.out.println("Favorite Cat Name= " + FavCatName);
+			Assert.assertEquals(CatName, FavCatName);
+			MoveToElement("FavoriteVideoResult_Xpath");
+			String VideoTitle = getText("FavoriteVideoResultText_Xpath");
+			System.out.println(VideoTitle);
+			Assert.assertEquals(VideoTitle, videoName);
+		} else {
+			System.out.println("Favorites already Exists");
+			MoveToElement("FavoriteVideoResult_Xpath");
+			advanceClick("FavoriteVideoBtn_Xpath");
+			navigate(url);
+			Assert.assertEquals(isElementPresent("NoRecordFavorite_Xpath"), true, "Favorites still exists");
+		}
+	}
+
+	public static void AllSubscribe(String LocatorName, String singleSubscribeLocator)
+			throws IOException, InterruptedException {
+		MoveToElement("Hover_MyAccount_Xpath");
+		click("Hover_MyAccount_Xpath");
+		wait(5);
+		MoveToElement("Subscription_Xpath");
+		wait(3);
+		click("Subscription_Xpath");
+		wait(5);
+
+		String LocatorValue = getPathValue(LocatorName);
+		String pathValue = getPathValue(singleSubscribeLocator);
+
+		int sizeOfSubscribeList = driver.findElements(By.xpath(LocatorValue)).size();
+		for (int loopCount = 1; loopCount <= sizeOfSubscribeList; loopCount++) {
+			WebElement singleElement = driver.findElement(By.xpath(pathValue.replace("INDEX", loopCount + "")));
+			singleElement.click();
+			VerifyPageTitle("smartapi");
+			driver.navigate().back();
+		}
+
+	}
+
+	public static void AllSubscribePlans(String LocatorName) throws IOException, InterruptedException {
+		MoveToElement("Hover_MyAccount_Xpath");
+		advanceClick("Hover_MyAccount_Xpath");
+		wait(5);
+		MoveToElement("Subscription_Xpath");
+		wait(3);
+		click("Subscription_Xpath");
+		wait(5);
+		String SubscribePath = getPathValue(LocatorName);
+		
+		for (int i = 1; i <= 4; i++) {
+			String SubXpath = String.format(SubscribePath, i);
+			driver.findElement(By.xpath(SubXpath)).click();
+			VerifyPageTitle("smartapi");
+			System.out.println("Plan " + i + "got Passed");
+			driver.navigate().back();
+		}
+
+	}
+	public static void CallOtpPop(){
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("$('#otpMobileModal').modal('show');");
+	}
+	
+
+}

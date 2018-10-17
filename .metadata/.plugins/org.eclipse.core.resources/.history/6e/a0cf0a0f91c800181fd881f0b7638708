@@ -1,0 +1,23 @@
+package abc;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.Test;
+
+public class bengalivideos {
+ 
+ @Test
+ public void test() throws InterruptedException{
+  
+  WebDriver driver = new FirefoxDriver();
+  
+  driver.navigate().to("https://www.automationtalks.com");
+  
+  System.out.println("navigate to website");
+  
+  Thread.sleep(3000); //sleep for 3 second so that you can observe that site is opened, before it closes quickly
+  
+  driver.close();
+  
+ }
+
+}

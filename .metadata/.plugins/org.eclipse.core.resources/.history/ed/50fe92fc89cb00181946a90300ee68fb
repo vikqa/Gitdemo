@@ -1,0 +1,17 @@
+package abc;
+ 
+public class star {
+ 
+    public static void main(String[] args) {
+        int n = 7;
+        int ct = n - 1;
+        for (int k = 1; k <= n; k++) {
+            for (int i = 1; i <= ct; i++)
+                System.out.print(" ");
+         ct--;
+            for (int i = 1; i <= 2 * k - 1; i++)
+         
+ 
+        }
+    }
+}
